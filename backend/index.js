@@ -20,7 +20,10 @@ const client = new Client({
 });
 
 client.connect(err => {
-    if (err) console.log("Can't connect to the DB")
+    if (err){
+        console.log("Can't connect to the DB")
+        return;
+    } 
     
 })
 
@@ -37,6 +40,7 @@ app.get("/products", (req, res) => {
         if (err) {
             console.log("ERROR /products")
             res.status(400).json({error: "Can't get products from the DB"}); 
+            return;
         }
         res.status(200).json(result.rows);
     });
@@ -48,6 +52,7 @@ app.get("/ad", (req, res) => {
         if (err) {
             console.log("ERROR /ad")
             res.status(400).json({error: "Can't get ad from the DB"}); 
+            return;
         }
         console.log(result.rows[0]);
         res.status(200).json(result.rows[0]);
@@ -60,6 +65,7 @@ app.post("/adP", (req, res) => {
         if (err) {
             console.log("ERROR /ad");
             res.status(400).json({error: "Can't update counter in the DB"});
+            return;
         }
         res.status(200);
     });
@@ -83,18 +89,21 @@ app.post("/order", async (req, res) => {
         if (errCust) {
             console.log("ERROR /orders")
             res.status(400).json({error: "Can't push the customer in the DB"});
+            return;
         }
         client.query(`SELECT id FROM public.customers WHERE email='${req.body.email}'`, (errId, resID) => {
             console.log("FINISHED ID QUERY /orders")
             if (errId) {
                 console.log("ERROR /orders")
                 res.status(400).json({error: "Can't find the customer in the DB"});
+                return;
             }
             client.query(`INSERT INTO public.orders (stav, customer_id, produkty) VALUES ('accepted', '${resID.rows[0].id}', '${items}')`, (errItem, resItem) => {
                 console.log("FINISHED INSERT QUERY /orders")
                 if (errItem) {
                     console.log("ERROR /orders")
                     res.status(400).json({error: "Can't push the order in the DB"});
+                    return;
                 }
                 res.status(200);
             })
