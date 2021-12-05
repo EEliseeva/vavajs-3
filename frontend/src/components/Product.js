@@ -3,7 +3,7 @@ import { ProductConsumer, ProductProvider } from '../context'
 
 export default class Product extends Component {
     render() {
-        const {id, title, price, count} = this.props.product;
+        const {id, title, price, count, img} = this.props.product;
         return (
             <ProductConsumer>
                 {(value) => {
@@ -16,6 +16,7 @@ export default class Product extends Component {
                             }
                         }>
                             <h3>{title}</h3>
+                            <img src={img} height="500" width="500"/>
                             <h4>Price: {price}</h4>
                             <button className="cart-btn" onClick={()=>{
                                 value.addToCart(id);

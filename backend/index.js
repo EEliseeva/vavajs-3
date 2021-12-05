@@ -14,13 +14,14 @@ const { Client } = require("pg");
 
 const client = new Client({
     user: 'postgres',
-    host: 'localhost',
+    host: 'database',
     password: "password",
     port: 5432
 });
 
 client.connect(err => {
-    if (err) throw err;
+    if (err) console.log("Can't connect to the DB")
+    
 })
 
 //Express route definitions
@@ -35,7 +36,7 @@ app.get("/products", (req, res) => {
         console.log("FINISHED QUERY /products")
         if (err) {
             console.log("ERROR /products")
-            throw error;
+            res.status(400).json({error: "Can't get products from the DB"}); 
         }
         res.status(200).json(result.rows);
     });
@@ -46,7 +47,7 @@ app.get("/ad", (req, res) => {
         console.log("FINISHED GET QUERY /ad")
         if (err) {
             console.log("ERROR /ad")
-            throw err;
+            res.status(400).json({error: "Can't get ad from the DB"}); 
         }
         console.log(result.rows[0]);
         res.status(200).json(result.rows[0]);
@@ -57,9 +58,8 @@ app.post("/adP", (req, res) => {
     client.query(`UPDATE public.ad SET pocitadlo=${req.body.pocitadlo + 1} WHERE id=${req.body.id}`, (err, result) => {
         console.log("FINISHED POST QUERY /ad")
         if (err) {
-            console.log("ERROR /ad")
-            res.status(400);
-            throw err;
+            console.log("ERROR /ad");
+            res.status(400).json({error: "Can't update counter in the DB"});
         }
         res.status(200);
     });
@@ -82,19 +82,19 @@ app.post("/order", async (req, res) => {
         console.log("FINISHED CUSTOMERS QUERY /orders")
         if (errCust) {
             console.log("ERROR /orders")
-            throw errCust;
+            res.status(400).json({error: "Can't push the customer in the DB"});
         }
         client.query(`SELECT id FROM public.customers WHERE email='${req.body.email}'`, (errId, resID) => {
             console.log("FINISHED ID QUERY /orders")
             if (errId) {
                 console.log("ERROR /orders")
-                throw errId;
+                res.status(400).json({error: "Can't find the customer in the DB"});
             }
             client.query(`INSERT INTO public.orders (stav, customer_id, produkty) VALUES ('accepted', '${resID.rows[0].id}', '${items}')`, (errItem, resItem) => {
                 console.log("FINISHED INSERT QUERY /orders")
                 if (errItem) {
                     console.log("ERROR /orders")
-                    throw errItem;
+                    res.status(400).json({error: "Can't push the order in the DB"});
                 }
                 res.status(200);
             })
